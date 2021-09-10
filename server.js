@@ -90,9 +90,11 @@ myDB(async client => {
               if (err) {
                 res.redirect("/");
               } else {
-                // The inserted document is held within
-                // the ops property of the doc
-                next(null, doc.ops[0]);
+                // minor modification for mongoDB v4
+                myDataBase.findOne({ _id: doc.insertedId }, function(err, doc) {
+                  if (err) next(err);
+                  next(null, doc);
+                });
               }
             }
           );
