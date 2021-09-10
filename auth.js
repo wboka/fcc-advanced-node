@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
+const GithubStrategy = require("passport-github").Strategy;
 const ObjectID = require("mongodb").ObjectID;
 const session = require("express-session");
 
@@ -17,7 +18,18 @@ module.exports = (app, myDataBase) => {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  // Serialization and deserialization here...
+  passport.use(
+    new GithubStrategy(
+      {
+        clientID: process.env.GITHUB_CLIENT_ID,
+        clientSecret: process.env.GITHUB_CLIENT_SECRET,
+        callbackURL: "/auith/github/callback"
+      },
+      (accessToken, refreshToken, profile, cb) => {
+        console.log(profile);
+      }
+    )
+  );
   passport.serializeUser((user, done) => {
     done(null, user._id);
   });
