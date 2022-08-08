@@ -11,7 +11,7 @@ module.exports = (app, myDataBase) => {
       secret: process.env.SESSION_SECRET,
       resave: true,
       saveUninitialized: true,
-      cookie: { secure: false }
+      cookie: { secure: false },
     })
   );
 
@@ -23,7 +23,8 @@ module.exports = (app, myDataBase) => {
       {
         clientID: process.env.GITHUB_CLIENT_ID,
         clientSecret: process.env.GITHUB_CLIENT_SECRET,
-        callbackURL: "https://wtb-fcc-advanced-node-2021.glitch.me/auth/github/callback"
+        callbackURL:
+          "https://wtb-fcc-advanced-node-2021.glitch.me/auth/github/callback",
       },
       (accessToken, refreshToken, profile, cb) => {
         console.log(profile);
@@ -39,14 +40,14 @@ module.exports = (app, myDataBase) => {
                 ? profile.emails[0].value
                 : "No public email",
               created_on: new Date(),
-              provider: profile.provider || ""
+              provider: profile.provider || "",
             },
             $set: {
-              last_login: new Date()
+              last_login: new Date(),
             },
             $inc: {
-              login_count: 1
-            }
+              login_count: 1,
+            },
           },
           { upsert: true, new: true },
           (err, doc) => {
@@ -66,18 +67,22 @@ module.exports = (app, myDataBase) => {
   });
 
   passport.use(
-    new LocalStrategy(function(username, password, done) {
-      myDataBase.findOne({ username: username }, function(err, user) {
+    new LocalStrategy(function (username, password, done) {
+      myDataBase.findOne({ username: username }, function (err, user) {
         console.log("User " + username + " attempted to log in.");
         if (err) {
+          console.log(err);
           return done(err);
         }
         if (!user) {
+          console.log("no user found");
           return done(null, false);
         }
         if (!bcrypt.compareSync(password, user.password)) {
+          console.log("wrong password : " + password + " - " + user.password);
           return done(null, false);
         }
+        console.log(user);
         return done(null, user);
       });
     })
